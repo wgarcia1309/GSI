@@ -1,48 +1,65 @@
 
 package gsi;
 
+import Views.M_win;
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.Vector;
+import javax.swing.JOptionPane;
 
 public class GSI {
     private BigInteger n,c;
-    private Hashtable<BigInteger,LinkedList<String>> tablahs;
-    private LinkedList<Datos> datos = new LinkedList<>();
+    private static Hashtable<BigInteger,LinkedList<String>> tablahs;
+    private static LinkedList<Datos> datos;
     private static Random rn= new Random();
+    private static Vector<BigInteger> vec;
+    
+    public static Datos getDt(int indx) {
+        return datos.get(indx);
+    }
+
+    public static Vector<BigInteger> sort() {
+           return vec;
+    }
+    
     public static void main(String[] args) {
-        GSI prueba = new GSI("1000000","10");
-        prueba.show();
+        M_win v1= new M_win();
+        v1.setLocationRelativeTo(null);
+        v1.setVisible(true);
     }
     
     public GSI(String n, String c) {
         this.n=new BigInteger(n);
         this.c=new BigInteger(c);
         tablahs = new Hashtable<BigInteger,LinkedList<String>>();
+        datos=new LinkedList<>();
+        vec= new Vector();
         this.create();
     }
     public void create(){
         //Inicio Primer Registro
         Scanner sc= new Scanner(System.in);
         BigInteger num=BigInteger.ONE;
-        System.out.println("Digite el tamaño de la clave ");
-        BigInteger tam=sc.nextBigInteger();
+        String text=JOptionPane.showInputDialog(null,"Digite el tamaño de la clave ");
+        //verficiar si es posible
+        BigInteger tam=new BigInteger(text);
         BigInteger key=num(tam);
-        while(tablahs.containsKey(key)){
-            key=num(tam);
-        }
+        vec.add(key);
         tablahs.put(key, new LinkedList());
         datos.add(new Datos(key.toString(),tam,key));
         LinkedList lista_hs=tablahs.get(key);
         BigInteger temp=BigInteger.ZERO;
         while(temp.compareTo(c)!=0){
-            System.out.println("Digite el tipo de dato del campo "+temp.add(BigInteger.ONE)+"\n0 - Numerico\n1 - Alfanumerico");
-            int tipo=sc.nextInt();
-            System.out.println("Digite el tamaño del campo "+temp.add(BigInteger.ONE));
-            tam=sc.nextBigInteger();
+            text=JOptionPane.showInputDialog(null,"Digite el tipo de dato del campo "+temp.add(BigInteger.ONE)+"\n0 - Numerico\n1 - Alfanumerico");
+            int tipo=Integer.parseInt(text);
+            text=JOptionPane.showInputDialog(null,"Digite el tamaño del campo "+temp.add(BigInteger.ONE));
+            tam=new BigInteger(text);
             if(tipo==0){
                 key=num(tam);
                 lista_hs.add(key.toString());
@@ -65,6 +82,7 @@ public class GSI {
             while(tablahs.containsKey(key)){
                 key=num(tam);
             }
+            vec.add(key);
             tablahs.put(key, new LinkedList());
             datos.get(indx).update(key);//actualiza sum,max y min si es necesario;
             lista_hs=tablahs.get(key);
@@ -84,9 +102,11 @@ public class GSI {
                 }
                 temp=temp.add(BigInteger.ONE);
             }
-            num=num.add(BigInteger.ONE);    
+            num=num.add(BigInteger.ONE);
+            
         }
         //Fin otros registros
+        Collections.sort(vec);
     }
     public static BigInteger num(BigInteger temp) {
         String ans = "";
@@ -128,4 +148,8 @@ public class GSI {
             }
     }
 
+    public static Hashtable<BigInteger, LinkedList<String>> getTablahs() {
+        return tablahs;
+    }
+    
 }
