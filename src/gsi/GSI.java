@@ -2,6 +2,8 @@
 package gsi;
 
 import Views.M_win;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,12 +15,13 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 public class GSI {
 
-    public static ArrayList<ArrayList<String>> buscar(String dato, int n) {
-        ArrayList temp= new ArrayList();
+    public static ArrayList<ArrayList<String>> buscar(String dato, int n) {ArrayList temp= new ArrayList();
         Set<BigInteger> keys = tablahs.keySet();
         if(n!=0){
             for (BigInteger  key:keys) {
@@ -99,40 +102,52 @@ public class GSI {
         tablahs = new Hashtable<BigInteger,ArrayList<String>>();
         datos=new ArrayList<>();
         vec= new Vector();
-        this.create();
+        try {
+            this.create();
+        } catch (IOException ex) {
+            Logger.getLogger(GSI.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
-    public void create(){
+    public void create() throws IOException{
+        FileWriter fw = new FileWriter("Registros.txt"); 
         //Inicio Primer Registro
         Scanner sc= new Scanner(System.in);
         BigInteger num=BigInteger.ONE;
-        String text=JOptionPane.showInputDialog(null,"Digite el tamaño de la clave ");
+        //String text=JOptionPane.showInputDialog(null,"Digite el tamaño de la clave ");
         //verficiar si es posible
-        BigInteger tam=new BigInteger(text);
+        BigInteger tam=new BigInteger((rn.nextInt(171)+30)+"");
         BigInteger key=num(tam);
         vec.add(key);
+        fw.write(key.toString()+';');
         tablahs.put(key, new ArrayList());
         datos.add(new Datos(key.toString(),tam,key));
         ArrayList lista_hs=tablahs.get(key);
         BigInteger temp=BigInteger.ZERO;
+        Random rn= new Random();
         while(temp.compareTo(c)!=0){
-            text=JOptionPane.showInputDialog(null,"Digite el tipo de dato del campo "+temp.add(BigInteger.ONE)+"\n0 - Numerico\n1 - Alfanumerico");
-            int tipo=Integer.parseInt(text);
-            text=JOptionPane.showInputDialog(null,"Digite el tamaño del campo "+temp.add(BigInteger.ONE));
-            tam=new BigInteger(text);
+            //text=JOptionPane.showInputDialog(null,"Digite el tipo de dato del campo "+temp.add(BigInteger.ONE)+"\n0 - Numerico\n1 - Alfanumerico");
+            
+            int tipo=Integer.parseInt(rn.nextInt(2)+"");
+            //text=JOptionPane.showInputDialog(null,"Digite el tamaño del campo "+temp.add(BigInteger.ONE));
+            
+            tam=new BigInteger((rn.nextInt(171)+30)+"");
             if(tipo==0){
                 key=num(tam);
                 lista_hs.add(key.toString());
                 datos.add(new Datos(key.toString(),tam,key));//inicializa sum,max y min;
+                fw.write(key.toString()+';');
             }else{
                 String an=word(tam);
                 lista_hs.add(an);
                 datos.add(new Datos(an,tam,null));//inicializa sum,max y min;
+                fw.write(an+';');
             }
             temp=temp.add(BigInteger.ONE);
         }
         //Fin Primer registro
+        fw.write('\n');
        //Inicio Otros Registros
-            num.add(BigInteger.ONE);
+        num.add(BigInteger.ONE);
         while(num.compareTo(n)<0){
             //Llave
             int indx= 0;
@@ -143,6 +158,7 @@ public class GSI {
             }
             vec.add(key);
             tablahs.put(key, new ArrayList());
+            fw.write(key.toString()+";");
             datos.get(indx).update(key);//actualiza sum,max y min si es necesario;
             lista_hs=tablahs.get(key);
             //Otros campos
@@ -154,18 +170,21 @@ public class GSI {
                     key=num(aux2.getSz());
                     lista_hs.add(key.toString());
                     aux2.update(key);
+                    fw.write(key.toString()+";");
                 }else{//Alfanumerico
                     String an=word(aux2.getSz());
                     lista_hs.add(an);
                     aux2.update(an);
+                    fw.write(an+";");
                 }
                 temp=temp.add(BigInteger.ONE);
             }
             num=num.add(BigInteger.ONE);
-            
+          fw.write('\n');  
         }
         //Fin otros registros
         Collections.sort(vec);
+        fw.close();
     }
     public static BigInteger num(BigInteger temp) {
         String ans = "";
