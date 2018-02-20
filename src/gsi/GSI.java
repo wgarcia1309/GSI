@@ -3,6 +3,7 @@ package gsi;
 
 import Views.M_win;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -10,13 +11,71 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.Vector;
 import javax.swing.JOptionPane;
 
 public class GSI {
+
+    public static ArrayList<ArrayList<String>> buscar(String dato, int n) {
+        ArrayList temp= new ArrayList();
+        Set<BigInteger> keys = tablahs.keySet();
+        if(n!=0){
+            for (BigInteger  key:keys) {
+                if(n>0){
+                    ArrayList<String> campos=tablahs.get(key);
+                    if(campos.get(n-1).compareTo(dato)==0){
+                        ArrayList<String> aux= new ArrayList();
+                        aux.add(key.toString());
+                        for (String ci:campos) {
+                            aux.add(ci);
+                        }
+                        temp.add(aux);
+                    }
+                }
+            }
+        }else {
+            ArrayList<String> campos=tablahs.get(new BigInteger(dato));
+            if(campos!=null){
+                ArrayList<String> aux= new ArrayList();
+                aux.add(dato);
+                for (String ci:campos) {
+                    aux.add(ci);
+                }
+                temp.add(aux);
+            }
+        }
+        return temp;
+    }
+    public static String moda(int n) {
+        Hashtable<String,BigInteger> tablam= new Hashtable();
+        Set<BigInteger> keys = tablahs.keySet();
+        BigInteger valor=new BigInteger("-1");
+         String moda=null;
+        if(n!=0){
+            for (BigInteger  key:keys) {
+                if(n>0){
+                    ArrayList<String> campos=tablahs.get(key);
+                    String item=campos.get(n-1);
+                    if(tablam.get(item)==null){
+                        tablam.put(item,BigInteger.ONE);
+                    }else{
+                        tablam.put(item, tablam.get(item).add(BigInteger.ONE));
+                    }
+                    if(valor.compareTo(tablam.get(item))<0){
+                        moda=item;
+                        valor=tablam.get(item);
+                    }
+                }
+            }
+            return moda;
+        }else {
+              return "No Aplica";
+        }
+    }
     private BigInteger n,c;
-    private static Hashtable<BigInteger,LinkedList<String>> tablahs;
-    private static LinkedList<Datos> datos;
+    private static Hashtable<BigInteger,ArrayList<String>> tablahs;
+    private static ArrayList<Datos> datos;
     private static Random rn= new Random();
     private static Vector<BigInteger> vec;
     
@@ -37,8 +96,8 @@ public class GSI {
     public GSI(String n, String c) {
         this.n=new BigInteger(n);
         this.c=new BigInteger(c);
-        tablahs = new Hashtable<BigInteger,LinkedList<String>>();
-        datos=new LinkedList<>();
+        tablahs = new Hashtable<BigInteger,ArrayList<String>>();
+        datos=new ArrayList<>();
         vec= new Vector();
         this.create();
     }
@@ -51,9 +110,9 @@ public class GSI {
         BigInteger tam=new BigInteger(text);
         BigInteger key=num(tam);
         vec.add(key);
-        tablahs.put(key, new LinkedList());
+        tablahs.put(key, new ArrayList());
         datos.add(new Datos(key.toString(),tam,key));
-        LinkedList lista_hs=tablahs.get(key);
+        ArrayList lista_hs=tablahs.get(key);
         BigInteger temp=BigInteger.ZERO;
         while(temp.compareTo(c)!=0){
             text=JOptionPane.showInputDialog(null,"Digite el tipo de dato del campo "+temp.add(BigInteger.ONE)+"\n0 - Numerico\n1 - Alfanumerico");
@@ -83,7 +142,7 @@ public class GSI {
                 key=num(tam);
             }
             vec.add(key);
-            tablahs.put(key, new LinkedList());
+            tablahs.put(key, new ArrayList());
             datos.get(indx).update(key);//actualiza sum,max y min si es necesario;
             lista_hs=tablahs.get(key);
             //Otros campos
@@ -134,7 +193,7 @@ public class GSI {
         while(dt.hasMoreElements()) {
            BigInteger llave = (BigInteger) dt.nextElement();
            System.out.print("Key: " +llave+ " Valores: ");
-           LinkedList auxL=tablahs.get(llave);
+           ArrayList auxL=tablahs.get(llave);
              for (int i = 0; i < auxL.size(); i++) {
                  System.out.print(auxL.get(i)+" ");
             }
@@ -147,8 +206,7 @@ public class GSI {
                   else System.out.println("Nope");
             }
     }
-
-    public static Hashtable<BigInteger, LinkedList<String>> getTablahs() {
+    public static Hashtable<BigInteger, ArrayList<String>> getTablahs() {
         return tablahs;
     }
     
