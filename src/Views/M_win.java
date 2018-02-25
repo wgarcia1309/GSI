@@ -7,12 +7,19 @@ package Views;
 
 import gsi.Datos;
 import gsi.GSI;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -64,6 +71,7 @@ public class M_win extends javax.swing.JFrame {
         min = new javax.swing.JTextArea();
         jScrollPane6 = new javax.swing.JScrollPane();
         mod = new javax.swing.JTextArea();
+        jButton5 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -139,6 +147,13 @@ public class M_win extends javax.swing.JFrame {
         mod.setRows(5);
         jScrollPane6.setViewportView(mod);
 
+        jButton5.setText("Leer Archivo");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -177,14 +192,15 @@ public class M_win extends javax.swing.JFrame {
                                     .addGroup(layout.createSequentialGroup()
                                         .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addGap(0, 0, Short.MAX_VALUE))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabel2)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                    .addComponent(jLabel2))
                                 .addGap(44, 44, 44))
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel1))
+                                    .addComponent(jLabel1)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(21, 21, 21)
+                                        .addComponent(jButton5)))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -238,16 +254,24 @@ public class M_win extends javax.swing.JFrame {
                             .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton4))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jButton4)
+                            .addComponent(jButton5)))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 340, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    
+    
+    BigInteger fil=null,col=null;
+    
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        
         GSI tabla=new GSI(n.getValue().toString(),c.getValue().toString());
+        fil=new BigInteger(n.getValue().toString());
+        col=new BigInteger(c.getValue().toString());
         if(tabla==null)return;
         DefaultTableModel modelo = new DefaultTableModel(Integer.parseInt(n.getValue().toString()), Integer.parseInt(c.getValue().toString())+1) {
                                             @Override
@@ -255,7 +279,10 @@ public class M_win extends javax.swing.JFrame {
                                             return false;
                                             }
                                         };
-        
+        update(modelo,tabla);
+       
+    }//GEN-LAST:event_jButton1ActionPerformed
+    public static void update(DefaultTableModel modelo,GSI  tabla){
         jTable1.setModel(modelo);
         Enumeration dt = tabla.getTablahs().keys();
         int indx1=0;
@@ -272,14 +299,13 @@ public class M_win extends javax.swing.JFrame {
             }
             indx1++;
         }
-    }//GEN-LAST:event_jButton1ActionPerformed
-
+    }
     private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
         int indx=jTable1.getSelectedColumn();
         Datos dt=GSI.getDt(indx);
         max.setText(dt.getMax());
         min.setText(dt.getMin());
-        if(dt.getSum().compareTo(new BigInteger("-1"))!=0)prom.setText(dt.getSum().divide(new BigInteger(n.getValue().toString()))+"");
+        if(dt.getSum().compareTo(new BigInteger("-1"))!=0)prom.setText(dt.getSum().divide(fil).toString());
         else prom.setText("No aplica");
     }//GEN-LAST:event_jTable1MouseClicked
 
@@ -322,6 +348,38 @@ public class M_win extends javax.swing.JFrame {
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
             mod.setText(GSI.moda(jTable1.getSelectedColumn()));
     }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        GSI tabla=null;
+        String datos[]=null;
+        try {
+            File f;
+            f = new File("MyFile.txt");
+            FileReader fr = new FileReader(f);
+            BufferedReader br = new BufferedReader(fr);
+            String line;
+            while (br.ready()) {
+                line = br.readLine();
+                datos=line.split(";");
+                tabla=new GSI(datos[0],datos[1],datos);
+                fil=new BigInteger(datos[0]);
+                col=new BigInteger(datos[1]);
+            }
+            br.close();
+            fr.close();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(M_win.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(M_win.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        DefaultTableModel modelo = new DefaultTableModel(Integer.parseInt(datos[0]), Integer.parseInt(datos[1])+1) {
+                                            @Override
+                                            public boolean isCellEditable(int row, int column) {
+                                            return false;
+                                            }
+                                        };
+        update(modelo,tabla);
+    }//GEN-LAST:event_jButton5ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -366,6 +424,7 @@ public class M_win extends javax.swing.JFrame {
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
